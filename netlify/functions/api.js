@@ -92,10 +92,11 @@ router.get('/v1/submissions', async (req, res) => {
 });
 
 // Use the router
-app.use('/', router);
 app.use('/api', router);
+app.use('/', router);
 
 // Initialize DB safely on boot
 db.initDb().catch(console.error);
 
-module.exports.handler = serverless(app);
+// Add basePath to handle Netlify's endpoint routing correctly
+module.exports.handler = serverless(app, { basePath: '/.netlify/functions/api' });
