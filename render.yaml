@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: aarambha-survey
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: DB_PATH
+        value: /data/survey.db
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1

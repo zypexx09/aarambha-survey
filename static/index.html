@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Voice Survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Progress Tracker -->
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="steps">
+                <span class="step-indicator active" id="step-A">A</span>
+                <span class="step-indicator" id="step-B">B</span>
+                <span class="step-indicator" id="step-C">C</span>
+                <span class="step-indicator" id="step-D">D</span>
+                <span class="step-indicator" id="step-E">E</span>
+            </div>
+            <div class="section-title-indicator" id="sectionTitleIndicator">Section A: How I See Myself</div>
+        </div>
+
+        <!-- Main Card -->
+        <main class="card" id="surveyCard">
+            
+            <!-- Student Profiling / Welcome View -->
+            <div class="view active" id="welcomeView">
+                <div class="welcome-header" style="text-align: center;">
+                    <img src="/static/img/logo.png" alt="Aarambha Sanskar Vidyalaya" class="school-logo" onerror="this.style.display='none';">
+                    <h1>Student Voice Survey</h1>
+                    <p class="subtitle" style="font-size: 17px; font-weight: 500; color: var(--primary-color);">Aarambha Sanskar Vidyalaya</p>
+                    
+                    <div class="survey-purpose">
+                        <p>Welcome! This survey is designed to help us understand what you are feeling, hearing, and seeing around the school. We want to know if you are interested in taking on leadership roles, what kind of roles you want, and what opportunities you feel are currently missing.</p>
+                        <p>Your honest feedback will directly help us build a better, more supportive environment for everyone.</p>
+                    </div>
+                </div>
+                
+                <div class="welcome-body" style="margin-bottom: 25px;">
+                    <!-- Profiling Form -->
+                    <div class="profile-card">
+                        <h3>Tell us who you are</h3>
+                        <p class="section-desc" style="margin-bottom: 15px;">Please fill in your details to start the survey (Grade 4 to 8).</p>
+                        
+                        <div class="profile-form-grid">
+                            <div class="form-group-profile">
+                                <label for="studentName">Your Full Name</label>
+                                <input type="text" id="studentName" placeholder="Enter your first and last name..." required>
+                            </div>
+                            
+                            <div class="form-group-profile-row">
+                                <div class="form-group-profile" style="flex: 1;">
+                                    <label for="studentGrade">Grade</label>
+                                    <select id="studentGrade" required>
+                                        <option value="" disabled selected>Select Grade</option>
+                                        <option value="4">Grade 4</option>
+                                        <option value="5">Grade 5</option>
+                                        <option value="6">Grade 6</option>
+                                        <option value="7">Grade 7</option>
+                                        <option value="8">Grade 8</option>
+                                    </select>
+                                </div>
+                                <div class="form-group-profile" style="flex: 1;">
+                                    <label for="studentSection">Section / Classroom</label>
+                                    <input type="text" id="studentSection" placeholder="e.g. A, Blue, Lotus..." required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="welcome-actions">
+                    <button class="btn btn-primary btn-large" id="btnStartSurvey" style="width: 100%;">
+                        Start Survey
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Survey Form (Dynamically Loaded) -->
+            <form id="surveyForm" onsubmit="event.preventDefault();" style="display: none;">
+                
+                <!-- Dynamic questions container will compile views dynamically -->
+                <div id="questionsContainer">
+                    <!-- Javascript will append view-A, view-B, etc. here -->
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="survey-actions">
+                    <button type="button" class="btn btn-secondary" id="btnPrev" style="display: none;">
+                        Previous
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnNext">
+                        Next
+                    </button>
+                    <button type="button" class="btn btn-submit" id="btnSubmit" style="display: none;">
+                        Submit Survey
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success / Thank You View -->
+            <div class="view" id="thanksView">
+                <div class="welcome-header">
+                    <h1>Thank You</h1>
+                    <p class="subtitle" id="thanksSubtitle">Your survey responses have been successfully submitted.</p>
+                </div>
+                <div class="thanks-body">
+                    <div class="session-badge" style="margin-bottom: 20px;">
+                        <span>Survey Session Registration:</span>
+                        <code id="displaySessionId">Generating...</code>
+                    </div>
+                    <div class="profile-summary-card">
+                        <h3>Registered Profile</h3>
+                        <div class="profile-sum-item"><strong>Name:</strong> <span id="sumName">-</span></div>
+                        <div class="profile-sum-item"><strong>Grade:</strong> <span id="sumGrade">-</span></div>
+                        <div class="profile-sum-item"><strong>Section:</strong> <span id="sumSection">-</span></div>
+                    </div>
+                    <p class="thanks-note" style="margin-top: 20px;">
+                        Your opinions will help our teachers and administrators address student needs, implement desired leadership opportunities, and solve common classroom issues.
+                    </p>
+                </div>
+                <div class="welcome-actions">
+                    <button class="btn btn-primary btn-large" onclick="window.location.reload();" style="width: 100%;">
+                        Fill Another Survey
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Error/Toast Notifications -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/survey.js"></script>
+</body>
+</html>

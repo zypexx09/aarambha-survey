@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Voice Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js CDN for beautiful charting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Passcode Security Overlay -->
+    <div id="passcodeOverlay" class="passcode-overlay">
+        <div class="passcode-card">
+            <h2>Admin Security Access</h2>
+            <p class="section-desc" style="margin-top: 5px;">This dashboard is password-protected. Please enter your administrator passcode to access analytics and survey tools.</p>
+            
+            <form id="passcodeForm" onsubmit="handlePasscodeSubmit(event)">
+                <input type="password" id="adminPasscodeField" placeholder="Enter Passcode..." required>
+                <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
+                    Unlock Dashboard
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container" id="dashboardMain" style="display: none;">
+        
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="dashboard-title">
+                <h1>Student Voice Analytics Dashboard</h1>
+                <p>Automated Qualitative NLP Theme Extractions & Classwise Reports</p>
+            </div>
+            <div class="dashboard-actions" style="display: flex; gap: 12px;">
+                <button onclick="handleLogout()" class="btn btn-secondary btn-outline">
+                    Lock Dashboard
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    Take Survey
+                </a>
+            </div>
+        </header>
+
+        <!-- Active Top Filters Bar -->
+        <section class="filter-bar">
+            <div class="filter-item">
+                <label for="filterGrade">Grade Level:</label>
+                <select id="filterGrade" onchange="applyFilters()">
+                    <option value="all">All Grades (4-8)</option>
+                    <option value="4">Grade 4</option>
+                    <option value="5">Grade 5</option>
+                    <option value="6">Grade 6</option>
+                    <option value="7">Grade 7</option>
+                    <option value="8">Grade 8</option>
+                </select>
+            </div>
+            <div class="filter-item" style="flex: 1; max-width: 300px;">
+                <label for="filterSection">Section:</label>
+                <input type="text" id="filterSection" placeholder="Filter by section...">
+            </div>
+            <button class="btn btn-primary" onclick="applyFilters()" style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                Apply Filters
+            </button>
+        </section>
+
+        <!-- Dashboard Global Tabs -->
+        <nav class="dashboard-tabs">
+            <button class="dash-tab-btn active" id="tabBtn-overview" onclick="switchDashboardTab('overview')">Quantitative Overview</button>
+            <button class="dash-tab-btn" id="tabBtn-qualitative" onclick="switchDashboardTab('qualitative')">Qualitative School Themes</button>
+            <button class="dash-tab-btn" id="tabBtn-submissions" onclick="switchDashboardTab('submissions')">Student Submissions</button>
+            <button class="dash-tab-btn" id="tabBtn-questions" onclick="switchDashboardTab('questions')">Manage Questions</button>
+        </nav>
+
+        <!-- TAB PANEL: QUANTITATIVE OVERVIEW -->
+        <div class="tab-panel active" id="panel-overview">
+            <!-- KPI Grid (Simplified, Emojis Removed) -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Total Submissions</h3>
+                        <div class="kpi-value" id="kpiSubmissions">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Confident Profile</h3>
+                        <div class="kpi-value" id="kpiConfident">0%</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Neutral Profile</h3>
+                        <div class="kpi-value" id="kpiNeutral">0%</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Needs Support</h3>
+                        <div class="kpi-value" id="kpiSupport">0%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Display -->
+            <div class="dashboard-card" style="gap: 24px;">
+                <div class="dashboard-card-title">
+                    <h2>Classroom Metric Distributions</h2>
+                    <span class="instruction-span">Chart fonts & colors optimized for readability</span>
+                </div>
+                
+                <div id="noDataMessage" class="empty-state" style="display: none;">
+                    No completed survey responses found matching these criteria.
+                </div>
+
+                <div class="charts-grid" id="chartsGrid">
+                    <!-- Charts loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PANEL: QUALITATIVE NLP SCHOOL THEMES -->
+        <div class="tab-panel" id="panel-qualitative">
+            <div class="dashboard-content-grid">
+                
+                <!-- Theme Column 1: Problems & friction points -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-title" style="border-bottom-color: var(--border-color);">
+                        <h2>Common Problems Students Are Facing</h2>
+                        <span class="instruction-span">Q15 Focus</span>
+                    </div>
+                    <p class="section-desc">Identifies what students feel is bringing down their confidence, such as nervousness, feeling ignored, or shouting in the classroom.</p>
+                    
+                    <div class="keywords-cloud" id="problemCloud">
+                        <!-- Cloud -->
+                    </div>
+                    
+                    <div class="responses-feed" id="problemFeed">
+                        <!-- Feed -->
+                    </div>
+                </div>
+
+                <!-- Theme Column 2: Leadership Interests & Qualities Gaps -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-title" style="border-bottom-color: var(--border-color);">
+                        <h2>Leadership Interests & Gaps</h2>
+                        <span class="instruction-span">Q16, 17, 20 Focus</span>
+                    </div>
+                    <p class="section-desc">Finds out who wants to be a leader, what qualities they are showing, and what improvement actions they hope to introduce.</p>
+                    
+                    <div class="keywords-cloud" id="leadershipCloud">
+                        <!-- Cloud -->
+                    </div>
+                    
+                    <div class="responses-feed" id="leadershipFeed">
+                        <!-- Feed -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full-width Aspirations Card -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-title" style="border-bottom-color: var(--border-color);">
+                    <h2>Student Aspirations (Feel, Hear, See)</h2>
+                    <span class="instruction-span">Q10, 25 Focus</span>
+                </div>
+                <p class="section-desc">Highlights what students wish their classmates and teachers would notice, and what environments help them thrive.</p>
+                
+                <div class="dashboard-content-grid" style="grid-template-columns: 1fr 1fr; margin-top: 10px;">
+                    <div>
+                        <h4 style="margin-bottom: 8px; font-size: 13px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Top Aspiration Keywords</h4>
+                        <div class="keywords-cloud" id="aspirationCloud"></div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 8px; font-size: 13px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Student Aspirations Feedback Feed</h4>
+                        <div class="responses-feed" id="aspirationFeed"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PANEL: STUDENT SUBMISSIONS EXPLORER -->
+        <div class="tab-panel" id="panel-submissions">
+            <div class="dashboard-card">
+                <div class="submissions-panel-header">
+                    <h2>Student Survey Records</h2>
+                    <span class="instruction-span" id="submissionRecordCount">0 records found</span>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Grade</th>
+                                <th>Section</th>
+                                <th>Date Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionsTableBody">
+                            <!-- Table rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PANEL: MANAGE QUESTIONS -->
+        <div class="tab-panel" id="panel-questions">
+            <div class="dashboard-card">
+                <div class="dashboard-card-title">
+                    <h2>Survey Questions Management</h2>
+                    <span class="instruction-span">Admins can rewrite questions and options. Survey form updates in real-time.</span>
+                </div>
+                
+                <div class="question-manage-list" id="questionsManageList">
+                    <!-- Question items -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL: Student Response Details Viewer -->
+    <div id="submissionDetailModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modalStudentTitle">Student Submission Profile</h2>
+                <button class="modal-close-btn" onclick="closeSubmissionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-summary-card" style="margin-top: 0; margin-bottom: 20px; background: var(--bg-light); grid-template-columns: 1fr 1fr; display: grid;">
+                    <div><strong>Name:</strong> <span id="detailStudentName">-</span></div>
+                    <div><strong>Date:</strong> <span id="detailStudentDate">-</span></div>
+                    <div><strong>Grade:</strong> <span id="detailStudentGrade">-</span></div>
+                    <div><strong>Section:</strong> <span id="detailStudentSection">-</span></div>
+                </div>
+                
+                <div class="detail-answers-list" id="modalDetailAnswersList">
+                    <!-- Formatted answers -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSubmissionModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Question Drawer -->
+    <div id="questionEditModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="editModalTitle">Edit Survey Question</h2>
+                <button class="modal-close-btn" onclick="closeEditQuestionModal()">&times;</button>
+            </div>
+            <form id="editQuestionForm" onsubmit="submitQuestionEdit(event)">
+                <input type="hidden" id="editQuestionId">
+                <div class="modal-body">
+                    <div class="form-group-profile">
+                        <label for="editQuestionTextField">Question Text</label>
+                        <textarea id="editQuestionTextField" rows="3" required></textarea>
+                    </div>
+                    
+                    <!-- Options container for MCQ / Checkboxes -->
+                    <div id="editOptionsContainer" style="display: none; margin-top: 20px;">
+                        <label style="font-size: 13px; font-weight: 600; color: var(--text-main); text-transform: uppercase;">MCQ Choice Labels</label>
+                        <div class="options-edit-grid" id="editOptionsGrid">
+                            <!-- Option text inputs -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditQuestionModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveQuestionEdit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Error/Toast Notifications -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
