@@ -2,6 +2,7 @@
 venv/
 env/
 .env
+node_modules/
 
 # Database
 *.db
